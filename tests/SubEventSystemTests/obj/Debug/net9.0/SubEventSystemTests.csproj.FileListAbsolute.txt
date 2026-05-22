@@ -1,0 +1,7 @@
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\bin\Debug\net9.0\.msCoverageSourceRootsMapping_SubEventSystemTests
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\bin\Debug\net9.0\CoverletSourceRootsMapping_SubEventSystemTests
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\obj\Debug\net9.0\SubEventSystemTests.csproj.AssemblyReference.cache
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\obj\Debug\net9.0\SubEventSystemTests.GeneratedMSBuildEditorConfig.editorconfig
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\obj\Debug\net9.0\SubEventSystemTests.AssemblyInfoInputs.cache
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\obj\Debug\net9.0\SubEventSystemTests.AssemblyInfo.cs
+C:\Source\Git_Workspace\SubEventSystem\tests\SubEventSystemTests\obj\Debug\net9.0\SubEventSystemTests.csproj.CoreCompileInputs.cache
