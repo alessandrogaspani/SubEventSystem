@@ -2,31 +2,106 @@
 
 A lightweight, thread-safe pub/sub event system with **conditional activation** for .NET.
 
-## What is it?
+Subscribers can be **paused and resumed at runtime** without unsubscribing. Producers can **auto-start/stop** based on whether anyone is listening.
 
-A custom event aggregator where subscribers can be **activated/deactivated at runtime** without unsubscribing. Useful when you need fine-grained control over who receives events and when.
+## How It Works
+
+```
+Subscribe(handler)          -> Token created (inactive by default)
+token.IsActive = true       -> Starts receiving events
+token.IsActive = false      -> Stops receiving (still subscribed)
+Unsubscribe(token)          -> Token removed and disposed
+```
 
 ## Key Features
 
-- **Activatable tokens** — toggle `IsActive` to start/stop receiving events
-- **Conditional activation** — provide a `Func<bool>` to auto-evaluate activation
-- **Active listener tracking** — `HasActiveListeners` notifies when first/last listener toggles
-- **Thread-safe** — lock + snapshot pattern for safe concurrent invocation
-- **Zero dependencies** — pure .NET, no external packages
+| Feature | What it does |
+|---------|-------------|
+| **Activatable tokens** | Toggle `IsActive` to pause/resume without resubscribing |
+| **Conditional activation** | Provide a `Func<bool>` evaluated at each `Invoke` |
+| **Listener tracking** | `HasActiveListeners` fires callbacks on first/last toggle |
+| **Thread-safe** | Lock + snapshot pattern for concurrent invocation |
+| **Zero dependencies** | Pure .NET |
 
-## Quick Start
+## Quick Example
 
 ```csharp
+// Producer starts/stops based on listeners
 var sensorEvent = new SubEvent<double>(
-    OnFirstListenerActivation: () => Console.WriteLine("Streaming started"),
-    OnLastListenerDeactivation: () => Console.WriteLine("Streaming stopped"));
+    OnFirstListenerActivation: () => sensor.StartStreaming(),
+    OnLastListenerDeactivation: () => sensor.StopStreaming());
 
-var token = sensorEvent.Subscribe(value =>
-{
-    Console.WriteLine($"Received: {value}");
-}, initialState: true);
+// Consumer subscribes
+var token = sensorEvent.Subscribe(value => Console.WriteLine(value), initialState: true);
 
-sensorEvent.Invoke(42.0); // prints "Received: 42"
-
+sensorEvent.Invoke(42.0);  // prints 42
 token.IsActive = false;
-sensorEvent.Invoke(99.0); // nothing happens
+sensorEvent.Invoke(99.0);  // nothing - token paused
+token.IsActive = true;
+sensorEvent.Invoke(7.0);   // prints 7
+```
+
+## API
+
+### SubEvent<T>
+
+| Method | Description |
+|--------|-------------|
+| `Subscribe(handler)` | Subscribe inactive |
+| `Subscribe(handler, initialState)` | Subscribe with explicit state |
+| `Subscribe(handler, activateCondition)` | Subscribe with auto-eval condition |
+| `Unsubscribe(token)` | Remove and dispose |
+| `Invoke(value)` | Dispatch to active subscribers |
+| `Dispose()` | Clean up all |
+
+### SubEventToken<T>
+
+| Member | Description |
+|--------|-------------|
+| `IsActive` | Toggle activation |
+| `RefreshActivation()` | Re-evaluate `ShouldActivate` |
+| `Dispose()` | Null references for GC |
+
+## Demo App (WPF)
+
+A visual playground showing SubEvent in action:
+
+- **Producer** generates Temperature/Pressure data every second
+- **Widgets** subscribe via `SubEvent<SensorReading>`
+- **Checkboxes** toggle `token.IsActive` in real-time
+- **Event log** traces delivery
+- **LED indicators** reflect `HasActiveListeners`
+
+```bash
+dotnet run --project SubEventSystem
+```
+
+## Tests
+
+```bash
+dotnet test
+```
+
+## Project Structure
+
+```
+SubEventSystem/
+|-- Events/
+|   |-- SubEvent.cs
+|   |-- SubEventToken.cs
+|-- MainWindow.xaml
+|-- MainWindow.xaml.cs
+|-- SensorReading.cs
+
+SubEventSystemTests/
+|-- SubEventTests.cs
+```
+
+## Requirements
+
+- .NET 8+
+- Windows (WPF demo)
+
+## License
+
+MIT
