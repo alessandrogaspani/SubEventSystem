@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SubEventSystem.Events
 {
@@ -26,9 +27,7 @@ namespace SubEventSystem.Events
             }
         }
 
-        public SubEvent()
-        {
-        }
+        public SubEvent() { }
 
         public SubEvent(Action OnFirstListenerActivation, Action OnLastListenerDeactivation)
         {
@@ -123,7 +122,7 @@ namespace SubEventSystem.Events
         private readonly List<SubEventToken> _subscriptions = new();
         private readonly object _lock = new();
 
-        public event ActiveListenersStateChangedEventHandler ActiveListenersStateChangedEvent;
+        public ActiveListenersStateChangedEventHandler ActiveListenersStateChangedEvent { get; set; }
 
         private bool _hasActiveListeners;
 
@@ -138,13 +137,11 @@ namespace SubEventSystem.Events
             }
         }
 
-        public SubEvent()
-        {
-        }
+        public SubEvent() { }
 
         public SubEvent(Action OnFirstListenerActivation, Action OnLastListenerDeactivation)
         {
-            ActiveListenersStateChangedEvent += (sender, activeListeners) =>
+            ActiveListenersStateChangedEvent = (sender, activeListeners) =>
             {
                 if (activeListeners)
                     OnFirstListenerActivation?.Invoke();
@@ -203,7 +200,7 @@ namespace SubEventSystem.Events
         public void Invoke()
         {
             SubEventToken[] snapshot;
-            lock (_lock) { snapshot = [.. _subscriptions]; }
+            lock (_lock) { snapshot = _subscriptions.ToArray(); }
 
             for (int i = 0; i < snapshot.Length; i++)
             {

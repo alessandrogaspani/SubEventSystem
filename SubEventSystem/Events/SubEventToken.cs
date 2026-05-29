@@ -1,4 +1,6 @@
-﻿namespace SubEventSystem.Events
+﻿using System;
+
+namespace SubEventSystem.Events
 {
     public delegate void ActivationStateChangedEventHandler<T>(SubEventToken<T> sender);
 
@@ -9,25 +11,37 @@
         internal ActivationStateChangedEventHandler<T> ActivationStateChangedEvent { get; set; }
 
         private bool _isActive;
+
         public bool IsActive
         {
-            get => _isActive;
+            get
+            {
+                return GetActivationValue();
+            }
+
             set
             {
-                if (_isActive == value) return;
-                _isActive = value;
-                ActivationStateChangedEvent?.Invoke(this);
+                SetActivationValue(value);
             }
         }
 
-        /// <summary>
-        /// Re-evaluates activation based on ShouldActivate condition.
-        /// Call this explicitly when external state changes.
-        /// </summary>
-        public void RefreshActivation()
+        private void SetActivationValue(bool value)
+        {
+            if (_isActive == value) return;
+            _isActive = value;
+            ActivationStateChangedEvent?.Invoke(this);
+        }
+
+        public bool GetActivationValue()
         {
             if (ShouldActivate != null)
-                IsActive = ShouldActivate.Invoke();
+            {
+                var newValue = ShouldActivate.Invoke();
+
+                SetActivationValue(newValue);
+            }
+
+            return _isActive;
         }
 
         public void Dispose()
@@ -49,25 +63,26 @@
         internal ActivationStateChangedEventHandler ActivationStateChangedEvent { get; set; }
 
         private bool _isActive;
+
         public bool IsActive
         {
-            get => _isActive;
-            set
+            get
             {
-                if (_isActive == value) return;
-                _isActive = value;
-                ActivationStateChangedEvent?.Invoke(this);
+                if (ShouldActivate != null)
+                {
+                    var newValue = ShouldActivate.Invoke();
+                    SetActivationValue(newValue);
+                }
+                return _isActive;
             }
+            set => SetActivationValue(value);
         }
 
-        /// <summary>
-        /// Re-evaluates activation based on ShouldActivate condition.
-        /// Call this explicitly when external state changes.
-        /// </summary>
-        public void RefreshActivation()
+        private void SetActivationValue(bool value)
         {
-            if (ShouldActivate != null)
-                IsActive = ShouldActivate.Invoke();
+            if (_isActive == value) return;
+            _isActive = value;
+            ActivationStateChangedEvent?.Invoke(this);
         }
 
         public void Dispose()
