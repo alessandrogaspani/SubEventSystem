@@ -8,9 +8,9 @@ Subscribers can be **paused and resumed at runtime** without unsubscribing. Prod
 
 ```
 var token = Subscribe(handler)          -> Token created (inactive by default)
-token.IsActive = true       -> Starts receiving events
-token.IsActive = false      -> Stops receiving (still subscribed)
-Unsubscribe(token)          -> Token removed and disposed
+token.IsActive = true                   -> Starts receiving events
+token.IsActive = false                  -> Stops receiving (still subscribed)
+Unsubscribe(token)                      -> Token removed and disposed
 ```
 
 ## Key Features
